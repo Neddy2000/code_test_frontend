@@ -1,0 +1,12 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+  <h1 class="govuk-heading-xl">Something went wrong</h1>
+  
+  {{ govukButton({
+    text: "Return to Dashboard",
+    href: "/"
+  }) }}
+{% endblock %}

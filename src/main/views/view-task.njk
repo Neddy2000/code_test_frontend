@@ -1,0 +1,94 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% block content %}
+
+  {{ govukBackLink({
+    text: "Back to Dashboard",
+    href: "/"
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      
+      <span class="govuk-caption-l">Task Details</span>
+      <h1 class="govuk-heading-l">{{ task.title }}</h1>
+      
+      {% set statusClass = "govuk-tag--blue" if task.status == "IN_PROGRESS" else ("govuk-tag--green" if task.status == "DONE" else "govuk-tag--grey") %}
+      {% set priorityClass = "govuk-tag--red" if task.priority == "CRITICAL" else ("govuk-tag--orange" if task.priority == "HIGH" else ("govuk-tag--yellow" if task.priority == "MEDIUM" else "govuk-tag--blue")) %}
+      
+      {% set statusHtml %}
+        {{ govukTag({ text: task.status, classes: statusClass }) }}
+      {% endset %}
+
+      {% set priorityHtml %}
+        {{ govukTag({ text: task.priority, classes: priorityClass }) }}
+      {% endset %}
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "ID" },
+            value: { text: task.id }
+          },
+          {
+            key: { text: "Title" },
+            value: { text: task.title }
+          },
+          {
+            key: { text: "Description" },
+            value: { text: task.description or "No description provided." }
+          },
+          {
+            key: { text: "Priority" },
+            value: { html: priorityHtml }
+          },
+          {
+            key: { text: "Status" },
+            value: { html: statusHtml }
+          },
+          {
+            key: { text: "Assigned To" },
+            value: { text: task.assignedTo.name if task.assignedTo else "Unassigned" }
+          },
+          {
+            key: { text: "Assigned By" },
+            value: { text: task.assignedBy.name if task.assignedBy else "System" }
+          },
+          {
+            key: { text: "Due Date" },
+            value: { text: (task.dueDate | date) or "None" }
+          },
+          {
+            key: { text: "Created At" },
+            value: { text: (task.createdAt | date) or "None" }
+          },
+          {
+            key: { text: "Last Updated" },
+            value: { text: (task.updatedAt | date) or "None" }
+          }
+        ]
+      }) }}
+
+      <div class="govuk-button-group">
+        {{ govukButton({
+          text: "Edit Task",
+          href: "/tasks/" + task.id + "/edit",
+          classes: "govuk-button--secondary"
+        }) }}
+        
+        {{ govukButton({
+          text: "Delete Task",
+          href: "/tasks/" + task.id + "/delete",
+          classes: "govuk-button--warning"
+        }) }}
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}

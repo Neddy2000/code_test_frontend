@@ -1,0 +1,16 @@
+{
+  "name": "Code Test Frontend",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "frontend",
+  "workspaceFolder": "/frontend",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ronnidc.nunjucks"
+      ]
+    }
+  },
+  "remoteUser": "root"
+}

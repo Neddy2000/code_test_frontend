@@ -1,0 +1,108 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block content %}
+
+  {{ govukBackLink({
+    text: "Back to Dashboard",
+    href: "/"
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Create a new Task</h1>
+
+      {% if error %}
+        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <ul class="govuk-list govuk-error-summary__list">
+              <li><a href="#title">{{ error }}</a></li>
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+      <form action="/tasks/new" method="post">
+        
+        <!-- Anti-CRSF Token is critical for POSTs, importing from the macros directly -->
+        {% include "macros/csrf.njk" %}
+
+        {{ govukInput({
+          label: {
+            text: "Task Title",
+            classes: "govuk-label--s"
+          },
+          id: "title",
+          name: "title",
+          attributes: { required: true }
+        }) }}
+
+        {{ govukTextarea({
+          name: "description",
+          id: "description",
+          label: {
+            text: "Task Description (Optional)",
+            classes: "govuk-label--s"
+          }
+        }) }}
+
+        {{ govukSelect({
+          id: "priority",
+          name: "priority",
+          label: {
+            text: "Priority",
+            classes: "govuk-label--s"
+          },
+          items: [
+            { value: "LOW", text: "Low" },
+            { value: "MEDIUM", text: "Medium", selected: true },
+            { value: "HIGH", text: "High" },
+            { value: "CRITICAL", text: "Critical" }
+          ]
+        }) }}
+
+        {% set userItems = [{ value: "", text: "Unassigned", selected: true }] %}
+        {% for user in users %}
+          {% set userItems = (userItems.push({ value: user.id, text: user.name }), userItems) %}
+        {% endfor %}
+
+        {{ govukSelect({
+          id: "assignedToId",
+          name: "assignedToId",
+          label: {
+            text: "Assigned To",
+            classes: "govuk-label--s"
+          },
+          items: userItems
+        }) }}
+
+        {# NOTE: GovUK date input macro normally returns parts, simplifying with a native date field #}
+        {{ govukInput({
+          label: {
+            text: "Due Date (Optional)",
+            classes: "govuk-label--s"
+          },
+          id: "dueDate",
+          name: "dueDate",
+          type: "date"
+        }) }}
+
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Save Task"
+          }) }}
+          <a class="govuk-link" href="/">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

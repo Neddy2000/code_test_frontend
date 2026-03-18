@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+    container_name: code_test_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/frontend
+    command: sh -c "yarn install && yarn start:dev"

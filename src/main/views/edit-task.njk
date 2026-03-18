@@ -1,0 +1,112 @@
+{% extends "template.njk" %}
+
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block content %}
+
+  {{ govukBackLink({
+    text: "Back to Task",
+    href: "/tasks/" + task.id
+  }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Edit Task</h1>
+      
+      {# To keep it simple based on the backend updating constraints, we are only allowing status updates for now. #}
+       
+      <form action="/tasks/{{ task.id }}/edit" method="post">
+        
+        {% include "macros/csrf.njk" %}
+
+        {{ govukInput({
+          label: {
+            text: "Task Title",
+            classes: "govuk-label--m"
+          },
+          id: "title",
+          name: "title",
+          value: task.title
+        }) }}
+
+        {{ govukTextarea({
+          name: "description",
+          id: "description",
+          label: {
+            text: "Task Description",
+            classes: "govuk-label--m"
+          },
+          value: task.description
+        }) }}
+
+        {{ govukSelect({
+          id: "priority",
+          name: "priority",
+          label: {
+            text: "Priority",
+            classes: "govuk-label--m"
+          },
+          items: [
+            { value: "LOW", text: "Low", selected: (task.priority == "LOW") },
+            { value: "MEDIUM", text: "Medium", selected: (task.priority == "MEDIUM") },
+            { value: "HIGH", text: "High", selected: (task.priority == "HIGH") },
+            { value: "CRITICAL", text: "Critical", selected: (task.priority == "CRITICAL") }
+          ]
+        }) }}
+
+        {{ govukSelect({
+          id: "status",
+          name: "status",
+          label: {
+            text: "Status",
+            classes: "govuk-label--m"
+          },
+          items: [
+            { value: "TODO", text: "To Do", selected: (task.status == "TODO") },
+            { value: "IN_PROGRESS", text: "In Progress", selected: (task.status == "IN_PROGRESS") },
+            { value: "DONE", text: "Done", selected: (task.status == "DONE") }
+          ]
+        }) }}
+
+        {% set userItems = [{ value: "", text: "Unassigned", selected: not task.assignedTo }] %}
+        {% for user in users %}
+          {% set userItems = (userItems.push({ value: user.id, text: user.name, selected: (task.assignedTo and task.assignedTo.id == user.id) }), userItems) %}
+        {% endfor %}
+
+        {{ govukSelect({
+          id: "assignedToId",
+          name: "assignedToId",
+          label: {
+            text: "Assigned To",
+            classes: "govuk-label--m"
+          },
+          items: userItems
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Due Date",
+            classes: "govuk-label--m"
+          },
+          id: "dueDate",
+          name: "dueDate",
+          type: "date",
+          value: task.dueDate | truncate(10, true, "")
+        }) }}
+
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Save Changes"
+          }) }}
+          <a class="govuk-link" href="/tasks/{{ task.id }}">Cancel</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+{% endblock %}
